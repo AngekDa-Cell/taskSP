@@ -3,78 +3,93 @@
 @tailwind utilities;
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
+    --background: 216 100% 91%; /* #D1E2FF - Soft, desaturated blue */
+    --foreground: 207 30% 25%; /* Darker blue/gray for text on light blue bg for readability */
+
+    --card: 216 100% 96%; /* Slightly lighter than background for cards */
+    --card-foreground: 207 30% 25%;
+
+    --popover: 216 100% 96%;
+    --popover-foreground: 207 30% 25%;
+
+    --primary: 207 47% 52%; /* #4B8BBE - Medium blue */
+    --primary-foreground: 0 0% 100%; /* White text for good contrast on primary */
+
+    --secondary: 210 98% 80%; /* Lighter version of accent, for secondary actions/elements */
+    --secondary-foreground: 207 47% 30%; /* Darker blue for text on secondary */
+
+    --muted: 210 60% 85%; /* Muted blue */
+    --muted-foreground: 207 30% 50%; /* Muted text color, slightly darker for readability */
+
+    --accent: 210 98% 73%; /* #77B5FE - Lighter, brighter blue */
+    --accent-foreground: 207 47% 25%; /* Dark blue for text on accent for contrast */
+
+    --destructive: 0 70% 55%; /* Standard destructive red */
+    --destructive-foreground: 0 0% 100%; /* White text on destructive */
+
+    --border: 207 40% 80%; /* Border color, harmonious with background/primary */
+    --input: 207 50% 98%; /* Input background, very light to stand out on bg */
+    --ring: 207 47% 52%; /* Ring color (primary) */
+
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --sidebar-background: 207 30% 25%; /* Darker blue for sidebar if used */
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 210 98% 73%;
+    --sidebar-primary-foreground: 207 47% 20%;
+    --sidebar-accent: 207 30% 35%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 207 30% 20%;
+    --sidebar-ring: 210 98% 73%;
   }
+
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --background: 207 30% 12%; /* Very dark blue */
+    --foreground: 216 100% 88%; /* Light blue text */
+
+    --card: 207 30% 18%;
+    --card-foreground: 216 100% 88%;
+
+    --popover: 207 30% 18%;
+    --popover-foreground: 216 100% 88%;
+
+    --primary: 210 98% 73%; /* Accent color as primary in dark mode */
+    --primary-foreground: 207 47% 15%; /* Dark text on primary */
+
+    --secondary: 207 30% 22%;
+    --secondary-foreground: 216 100% 88%;
+
+    --muted: 207 30% 28%;
+    --muted-foreground: 216 80% 75%;
+
+    --accent: 207 47% 52%; /* Medium blue as accent in dark */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 60% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 207 30% 30%;
+    --input: 207 30% 22%;
+    --ring: 210 98% 73%;
+
+    --sidebar-background: 207 40% 8%;
+    --sidebar-foreground: 216 100% 88%;
+    --sidebar-primary: 210 98% 73%;
+    --sidebar-primary-foreground: 207 47% 15%;
+    --sidebar-accent: 207 30% 15%;
+    --sidebar-accent-foreground: 216 100% 88%;
+    --sidebar-border: 207 30% 12%;
+    --sidebar-ring: 210 98% 73%;
   }
 }
 
@@ -84,5 +99,6 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    min-height: 100vh;
   }
 }
