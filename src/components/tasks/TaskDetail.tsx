@@ -14,7 +14,7 @@ import { useState } from "react";
 
 interface TaskDetailProps {
   task: Task;
-  onTaskUpdated: () => void; // Callback to refresh task list or parent component
+  onTaskUpdatedAction: () => void; // Callback to refresh task list or parent component
 }
 
 const statusIcons: Record<TaskStatus, React.ElementType> = {
@@ -23,7 +23,7 @@ const statusIcons: Record<TaskStatus, React.ElementType> = {
   completed: CheckCircle2,
 };
 
-export function TaskDetail({ task: initialTask, onTaskUpdated }: TaskDetailProps) {
+export function TaskDetail({ task: initialTask, onTaskUpdatedAction }: TaskDetailProps) {
   const [task, setTask] = useState<Task>(initialTask);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const { user } = useAuth();
@@ -51,7 +51,7 @@ export function TaskDetail({ task: initialTask, onTaskUpdated }: TaskDetailProps
     if (success) {
       setTask(prevTask => ({ ...prevTask, status: newStatus }));
       toast({ title: "Status Updated", description: `Task status changed to ${newStatus}.` });
-      onTaskUpdated(); // Notify parent about the update
+      onTaskUpdatedAction(); // Notify parent about the update
     } else {
       toast({ variant: "destructive", title: "Update Failed", description: "Could not update task status." });
     }

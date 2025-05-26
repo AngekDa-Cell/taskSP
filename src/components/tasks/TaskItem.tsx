@@ -1,19 +1,18 @@
 "use client";
 
-import type { Task, TaskStatus } from "@/lib/types";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Task, TaskStatus } from "@/lib/types";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Circle, Loader2, Eye, CalendarDays } from "lucide-react";
+import { Circle, Loader2, CheckCircle2, CalendarDays, Info } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface TaskItemProps {
   task: Task;
   onStatusChange?: (taskId: number, newStatus: TaskStatus) => void; // Optional: for future extension
 }
 
-const statusIcons: Record<TaskStatus, React.ElementType> = {
+const statusIcons: Record<TaskStatus, React.ComponentType<{ className?: string }>> = {
   pending: Circle,
   'in-progress': Loader2,
   completed: CheckCircle2,
@@ -32,7 +31,7 @@ const statusTextColors: Record<TaskStatus, string> = {
 };
 
 export function TaskItem({ task }: TaskItemProps) {
-  const StatusIcon = statusIcons[task.status];
+  const StatusIcon = statusIcons[task.status] || (() => null);
   const statusColorClass = statusColors[task.status] || "bg-gray-500";
   const statusTextColorClass = statusTextColors[task.status] || "text-gray-700";
 
@@ -53,7 +52,7 @@ export function TaskItem({ task }: TaskItemProps) {
       if (date.getTime() === tomorrow.getTime()) return "Tomorrow";
       if (date.getTime() === yesterday.getTime()) return "Yesterday";
       
-      return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(dateString));
+      return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(dateString));
     } catch (e) {
       return dateString; // fallback to original string if date is invalid
     }
@@ -61,38 +60,39 @@ export function TaskItem({ task }: TaskItemProps) {
 
 
   return (
-    <Card className="w-full transition-all hover:shadow-lg">
-      <CardHeader>
+    <Card className="w-full transition-all hover:shadow-lg flex flex-col">
+      <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
-          <CardTitle className="text-xl">{task.title}</CardTitle>
-          <Badge variant={task.status === 'completed' ? 'default' : task.status === 'in-progress' ? 'secondary' : 'outline'} 
-                 className={cn("capitalize", 
-                   task.status === 'completed' ? 'bg-green-100 text-green-700 border-green-300' :
-                   task.status === 'in-progress' ? 'bg-blue-100 text-blue-700 border-blue-300' :
-                   'bg-yellow-100 text-yellow-700 border-yellow-300'
-                 )}>
-            <StatusIcon className={cn("mr-2 h-4 w-4", task.status === 'in-progress' && "animate-spin")} />
-            {task.status}
+          <CardTitle className="text-lg font-semibold hover:text-primary transition-colors">
+            <Link href={`/tasks/${task.id}`} className="hover:underline">
+              {task.title || "Untitled Task"}
+            </Link>
+          </CardTitle>
+          <Badge variant={task.status === 'completed' ? 'default' : task.status === 'in-progress' ? 'secondary' : 'outline'}
+                 className={`capitalize ${statusColorClass} ${statusTextColorClass} border-none text-xs px-2 py-1`}>
+            <StatusIcon className="mr-1.5 h-3.5 w-3.5" />
+            {task.status.replace('-', ' ')}
           </Badge>
         </div>
-        <CardDescription className="flex items-center text-sm text-muted-foreground pt-1">
-          <CalendarDays className="mr-2 h-4 w-4" />
-          Due: {formatDate(task.dueDate)}
-        </CardDescription>
+        {task.dueDate && (
+          <div className="flex items-center text-xs text-muted-foreground mt-1">
+            <CalendarDays className="mr-1.5 h-3.5 w-3.5" />
+            Due: {formatDate(task.dueDate)}
+          </div>
+        )}
       </CardHeader>
       {task.description && (
-        <CardContent>
-          <p className="text-sm text-foreground line-clamp-2">
-            {task.description}
-          </p>
+        <CardContent className="pt-0 pb-3 text-sm text-muted-foreground flex-grow">
+          <p className="line-clamp-2">{task.description}</p>
         </CardContent>
       )}
-      <CardFooter>
-        <Link href={`/tasks/${task.id}`} passHref legacyBehavior>
-          <Button variant="outline" size="sm" asChild>
-            <a><Eye className="mr-2 h-4 w-4" /> View Details</a>
-          </Button>
-        </Link>
+      <CardFooter className="pt-2 pb-4 flex justify-end">
+        <Button variant="outline" size="sm" asChild>
+          <Link href={`/tasks/${task.id}`}>
+            View Details
+            <Info className="ml-2 h-4 w-4" />
+          </Link>
+        </Button>
       </CardFooter>
     </Card>
   );

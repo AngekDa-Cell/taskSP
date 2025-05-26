@@ -41,20 +41,40 @@ export function LoginForm() {
     },
   });
 
+  // Agregar validación adicional para campos vacíos y manejo de errores
   async function onSubmit(values: LoginFormValues) {
-    setIsLoading(true);
-    const success = await login(values.username, values.password);
-    setIsLoading(false);
-    if (success) {
-      toast({ title: "Login Successful", description: "Welcome back!" });
-      router.push("/dashboard");
-    } else {
+    if (!values.username || !values.password) {
       toast({
         variant: "destructive",
-        title: "Login Failed",
-        description: "Invalid username or password. Please try again.",
+        title: "Validation Error",
+        description: "Both username and password are required."
       });
-      form.resetField("password");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const success = await login(values.username, values.password);
+      if (success) {
+        toast({ title: "Login Successful", description: "Welcome back!" });
+        router.push("/dashboard");
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Login Failed",
+          description: "Invalid username or password. Please try again."
+        });
+        form.resetField("password");
+      }
+    } catch (error) {
+      console.error("Unexpected error during login:", error);
+      toast({
+        variant: "destructive",
+        title: "Unexpected Error",
+        description: "An unexpected error occurred. Please try again later."
+      });
+    } finally {
+      setIsLoading(false);
     }
   }
 

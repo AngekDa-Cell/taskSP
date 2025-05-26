@@ -27,8 +27,8 @@ export function TaskList({ tasks, title = "Tasks" }: TaskListProps) {
 
   return (
     <div className="space-y-4">
-      {tasks.map((task) => (
-        <TaskItem key={task.id} task={task} />
+      {tasks.map((task, index) => (
+        <TaskItem key={task.id || `task-${index}`} task={task} />
       ))}
     </div>
   );
