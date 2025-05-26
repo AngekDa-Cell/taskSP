@@ -1,7 +1,7 @@
 "use client";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter }_ from "next/navigation"; // useRouter is not used directly, but for potential future use
+import { useRouter } from "next/navigation"; // useRouter is not used directly, but for potential future use
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
