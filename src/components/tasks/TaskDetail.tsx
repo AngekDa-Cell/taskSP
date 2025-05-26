@@ -7,13 +7,13 @@ import { CheckCircle2, Circle, Loader2, CalendarDays, Info } from "lucide-react"
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { mock_SP_UpdateTaskStatus } from "@/lib/mock-data";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface TaskDetailProps {
-  task: Task;
+  taskId: number;
+  userId: number;
   onTaskUpdatedAction: () => void; // Callback to refresh task list or parent component
 }
 
@@ -23,13 +23,32 @@ const statusIcons: Record<TaskStatus, React.ElementType> = {
   completed: CheckCircle2,
 };
 
-export function TaskDetail({ task: initialTask, onTaskUpdatedAction }: TaskDetailProps) {
-  const [task, setTask] = useState<Task>(initialTask);
+export function TaskDetail({ taskId, userId, onTaskUpdatedAction }: TaskDetailProps) {
+  const [task, setTask] = useState<Task | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
-  const { user } = useAuth();
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const StatusIcon = statusIcons[task.status];
+  const StatusIcon = task ? statusIcons[task.status] : null;
+
+  useEffect(() => {
+    async function fetchTaskDetail() {
+      try {
+        const response = await fetch(`/api/tasks/${taskId}`, {
+          headers: { 'x-user-id': String(userId) },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch task details');
+        }
+        const data = await response.json();
+        setTask(data);
+      } catch (err: any) {
+        setError(err.message);
+      }
+    }
+
+    fetchTaskDetail();
+  }, [taskId, userId]);
 
   const formatDate = (dateString: string, includeTime: boolean = false) => {
     try {
@@ -45,19 +64,37 @@ export function TaskDetail({ task: initialTask, onTaskUpdatedAction }: TaskDetai
   };
 
   const handleStatusChange = async (newStatus: TaskStatus) => {
-    if (!user) return;
+    if (!task) return;
     setIsUpdatingStatus(true);
-    const success = await mock_SP_UpdateTaskStatus(task.id, user.id, newStatus);
-    if (success) {
-      setTask(prevTask => ({ ...prevTask, status: newStatus }));
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': String(userId),
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update task status');
+      }
+      setTask({ ...task, status: newStatus });
       toast({ title: "Status Updated", description: `Task status changed to ${newStatus}.` });
       onTaskUpdatedAction(); // Notify parent about the update
-    } else {
+    } catch (err: any) {
+      setError(err.message);
       toast({ variant: "destructive", title: "Update Failed", description: "Could not update task status." });
     }
     setIsUpdatingStatus(false);
   };
 
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  if (!task) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Card className="w-full shadow-xl">
@@ -72,7 +109,9 @@ export function TaskDetail({ task: initialTask, onTaskUpdatedAction }: TaskDetai
               'bg-yellow-100 text-yellow-700 border-yellow-300'
             )}
           >
-            <StatusIcon className={cn("mr-2 h-4 w-4", task.status === 'in-progress' && "animate-spin")} />
+            {StatusIcon && (
+              <StatusIcon className={cn("mr-2 h-4 w-4", task.status === 'in-progress' && "animate-spin")} />
+            )}
             {task.status}
           </Badge>
         </div>

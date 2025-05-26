@@ -63,19 +63,10 @@ export default function DashboardPage() {
         throw new Error(errorData.error || `Failed to fetch tasks: ${response.statusText}`);
       }
 
-      const rawDataFromApi: any[] = await response.json();
-
-      // Map API data (PascalCase) to the frontend Task type (camelCase/lowercase)
-      const mappedTasks: Task[] = rawDataFromApi.map(apiTask => ({
-        id: apiTask.TaskID,
-        userId: apiTask.UserID,
-        title: apiTask.Title,
-        description: apiTask.Description,
-        creationDate: apiTask.CreationDate, // Ensure these date strings are handled appropriately if conversion to Date objects is needed later
-        dueDate: apiTask.DueDate,
-        status: apiTask.Status, // This maps 'Status' (PascalCase) from API to 'status' (lowercase) for the frontend
-      }));
-      setTasks(mappedTasks);
+      // The API at /api/tasks is expected to return Task[] directly.
+      // The keys in the API response should match the Task type (camelCase/lowercase).
+      const tasksFromApi: Task[] = await response.json();
+      setTasks(tasksFromApi);
 
     } catch (err: any) {
       console.error("Error fetching tasks:", err);

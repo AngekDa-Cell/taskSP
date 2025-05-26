@@ -3,6 +3,7 @@ import getPgPool from '@/lib/pgPool';
 
 const loginHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== 'POST') {
+    res.setHeader('Allow', ['POST']);
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
@@ -13,36 +14,31 @@ const loginHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   const pool = getPgPool();
+  const client = await pool.connect();
 
   try {
-    const client = await pool.connect();
-    console.log('Connected to the database');
+    // Call SP_AuthenticateUser
+    // p_Username VARCHAR(255), p_Password VARCHAR(255), OUT o_UserID INT, OUT o_Username_Out VARCHAR(255)
+    const spCallQuery = 'CALL SP_AuthenticateUser($1, $2, NULL, NULL)'; 
+    const spCallValues = [username, password];
 
-    // Actualizar la consulta para usar UserID y PasswordHash
-    const query = `
-      SELECT UserID AS id, Username AS username
-      FROM Users
-      WHERE Username = $1 AND PasswordHash = encode(digest($2, 'sha256'), 'hex')
-    `;
-    const values = [username, password];
-    console.log('Executing query:', query, 'with values:', values);
+    const result = await client.query(spCallQuery, spCallValues);
 
-    const result = await client.query(query, values);
-    console.log('Query result:', result.rows);
+    const user = result.rows[0];
 
-    client.release();
-
-    if (result.rows.length === 0) {
-      console.warn('No user found with the provided credentials');
+    if (!user || user.o_userid === null) { 
       return res.status(401).json({ error: 'Invalid username or password' });
     }
 
-    const user = result.rows[0];
-    console.log('Authenticated user:', user);
-    return res.status(200).json(user);
-  } catch (error) {
-    console.error('Error during login:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    res.status(200).json({
+      id: user.o_userid,
+      username: user.o_username_out, 
+    });
+  } catch (error: any) {
+    console.error('Login API error:', error.message, error.stack);
+    res.status(500).json({ error: 'Internal server error', details: error.message });
+  } finally {
+    client.release();
   }
 };
 

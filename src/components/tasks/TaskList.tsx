@@ -7,11 +7,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface TaskListProps {
   tasks: Task[];
-  title?: string;
 }
 
-export function TaskList({ tasks, title = "Tasks" }: TaskListProps) {
-  if (!tasks || tasks.length === 0) {
+export function TaskList({ tasks }: TaskListProps) {
+  if (tasks.length === 0) {
     return (
       <div className="mt-8">
         <Alert className="bg-card border-border shadow">

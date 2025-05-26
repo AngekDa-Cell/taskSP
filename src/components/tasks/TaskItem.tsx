@@ -31,9 +31,11 @@ const statusTextColors: Record<TaskStatus, string> = {
 };
 
 export function TaskItem({ task }: TaskItemProps) {
-  const StatusIcon = statusIcons[task.status] || (() => null);
-  const statusColorClass = statusColors[task.status] || "bg-gray-500";
-  const statusTextColorClass = statusTextColors[task.status] || "text-gray-700";
+  // Ensure task and task.status are defined before trying to access properties
+  const currentStatus = task?.status || 'pending'; // Default to 'pending' if undefined
+  const StatusIcon = statusIcons[currentStatus] || Circle; // Default Icon
+  const statusColorClass = statusColors[currentStatus] || "bg-gray-500";
+  const statusTextColorClass = statusTextColors[currentStatus] || "text-gray-700";
 
   const formatDate = (dateString: string) => {
     try {
@@ -68,10 +70,10 @@ export function TaskItem({ task }: TaskItemProps) {
               {task.title || "Untitled Task"}
             </Link>
           </CardTitle>
-          <Badge variant={task.status === 'completed' ? 'default' : task.status === 'in-progress' ? 'secondary' : 'outline'}
+          <Badge variant={currentStatus === 'completed' ? 'default' : currentStatus === 'in-progress' ? 'secondary' : 'outline'}
                  className={`capitalize ${statusColorClass} ${statusTextColorClass} border-none text-xs px-2 py-1`}>
             <StatusIcon className="mr-1.5 h-3.5 w-3.5" />
-            {task.status.replace('-', ' ')}
+            {currentStatus.replace('-', ' ')}
           </Badge>
         </div>
         {task.dueDate && (
