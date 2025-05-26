@@ -177,6 +177,7 @@ BEGIN
 END;
 $$;
 
+DO $$
 DECLARE
     v_new_user_id INT;
     v_auth_user_id INT;
@@ -185,9 +186,9 @@ DECLARE
     v_rows_affected INT;
 BEGIN
     -- Registrar un nuevo usuario
-    CALL SP_RegisterUser('testuser_sp', 'securepassword123', v_new_user_id);
+    CALL SP_RegisterUser('angel', 'test123', v_new_user_id);
     RAISE NOTICE 'Nuevo UserID registrado: %', v_new_user_id;
-END $$;
+END $$ LANGUAGE plpgsql;
 
 
 -- Ejemplo de cómo llamar a SP_RegisterUser y obtener el ID del nuevo usuario:
