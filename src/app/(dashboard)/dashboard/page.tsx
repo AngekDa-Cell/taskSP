@@ -48,8 +48,8 @@ export default function DashboardPage() {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          // Add any other necessary headers, like Authorization tokens, if applicable
-        }
+        },
+        cache: 'no-store', // Prevent caching
       });
 
       if (!response.ok) {

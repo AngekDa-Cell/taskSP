@@ -68,7 +68,8 @@ export default function TaskDetailPage() {
     try {
       const response = await fetch(`/api/tasks/${taskId}`, {
         method: 'GET',
-        headers: { 'x-user-id': String(user.id) } // ¡IMPORTANTE! En una app real, userId vendría de la sesión/token
+        headers: { 'x-user-id': String(user.id) },
+        cache: 'no-store', // Prevent caching
       });
       if (!response.ok) {
          const errorData = await response.json();
@@ -104,37 +105,61 @@ export default function TaskDetailPage() {
 
 
   const handleUpdateTask = async () => {
-    if (!task || !user || !editDueDate) {
-        toast({ variant: "destructive", title: "Error", description: "Missing task data or due date." });
-        return;
+    if (!task || !user) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Task or user not available.",
+      });
+      return;
     }
+    if (!editTitle.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Validation Error",
+        description: "Title cannot be empty.",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
-        const response = await fetch(`/api/tasks/${task.id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-user-id': String(user.id) // ¡IMPORTANTE! En una app real, userId vendría de la sesión/token
-            },
-            body: JSON.stringify({
-                title: editTitle,
-                description: editDescription,
-                dueDate: format(editDueDate, 'yyyy-MM-dd'),
-                status: editStatus,
-            }),
-        });
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || `Failed to update task. Status: ${response.status}`);
-        }
-        toast({ title: "Success", description: "Task updated successfully." });
-        setIsEditing(false);
-        fetchTaskDetails(); // Recargar detalles
+      const body = {
+        title: editTitle,
+        description: editDescription,
+        dueDate: editDueDate ? format(editDueDate, 'yyyy-MM-dd') : null,
+        status: editStatus,
+      };
+
+      const response = await fetch(`/api/tasks/${task.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': String(user.id),
+        },
+        body: JSON.stringify(body),
+        cache: 'no-store', // Prevent caching for the update operation's subsequent effects
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Failed to update task. Status: ${response.status}`);
+      }
+
+      const updatedTaskData: Task = await response.json(); 
+
+      setTask(updatedTaskData);
+      setIsEditing(false);
+      toast({
+        title: "Task Updated",
+        description: "Your task has been successfully updated.",
+      });
+      // router.refresh(); // Consider if needed for more complex scenarios or Server Components
     } catch (err: any) {
-        console.error("Error updating task:", err);
-        toast({ variant: "destructive", title: "Error", description: err.message || "Could not update task." });
+      console.error("Error updating task:", err);
+      toast({ variant: "destructive", title: "Error", description: err.message || "Could not update task." });
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -153,6 +178,7 @@ export default function TaskDetailPage() {
           'x-user-id': String(user.id) // ¡IMPORTANTE! En una app real, userId vendría de la sesión/token
         },
         body: JSON.stringify({ status: newStatus }),
+        cache: 'no-store', // Prevent caching
       });
       if (!response.ok) {
         const errorData = await response.json();

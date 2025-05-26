@@ -31,13 +31,13 @@ const statusTextColors: Record<TaskStatus, string> = {
 };
 
 export function TaskItem({ task }: TaskItemProps) {
-  // Ensure task and task.status are defined before trying to access properties
-  const currentStatus = task?.status || 'pending'; // Default to 'pending' if undefined
-  const StatusIcon = statusIcons[currentStatus] || Circle; // Default Icon
+  const currentStatus = task?.status || 'pending';
+  const StatusIcon = statusIcons[currentStatus] || Circle;
   const statusColorClass = statusColors[currentStatus] || "bg-gray-500";
   const statusTextColorClass = statusTextColors[currentStatus] || "text-gray-700";
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | undefined) => { // Allow undefined
+    if (!dateString) return 'N/A';
     try {
       const date = new Date(dateString);
       // Check if due date is today, tomorrow, or yesterday for user-friendly display
@@ -66,12 +66,12 @@ export function TaskItem({ task }: TaskItemProps) {
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
           <CardTitle className="text-lg font-semibold hover:text-primary transition-colors">
-            <Link href={`/tasks/${task.id}`} className="hover:underline">
+            <Link href={`/dashboard/tasks/${task.id}`} className="hover:underline">
               {task.title || "Untitled Task"}
             </Link>
           </CardTitle>
           <Badge variant={currentStatus === 'completed' ? 'default' : currentStatus === 'in-progress' ? 'secondary' : 'outline'}
-                 className={`capitalize ${statusColorClass} ${statusTextColorClass} border-none text-xs px-2 py-1`}>
+                 className="capitalize text-xs px-2 py-1">
             <StatusIcon className="mr-1.5 h-3.5 w-3.5" />
             {currentStatus.replace('-', ' ')}
           </Badge>
